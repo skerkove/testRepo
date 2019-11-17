@@ -1,0 +1,56 @@
+@model List<Occasion>
+
+
+
+<h1>Welcome @ViewBag.User.FirstName!</h1>
+
+<a asp-action="LogOut" asp-controller="Home" class="btn btn-danger">Logout</a>
+
+<br>
+<br>
+
+<table class="table table-dark">
+  <thead>
+    <tr>
+      <th>Activity</th>
+      <th>Date & Time</th>
+      <th>Duration</th>
+      <th>Event Coordinator</th>
+      <th>No. of Participants</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    @foreach(var o in @Model)
+    {
+        if(@o.Date > DateTime.Now)
+        {
+      <tr>
+        <td><a asp-route-occasionId="@o.OccasionId" asp-action="Show" asp-controller="Home">@o.Title</a></td>
+        <td>@o.Date.ToString("MMMM d, yyyy @ hh:mm tt")</td>
+        <td>@o.Duration hr(s)</td>
+        <td>@o.Coordinator.FirstName @o.Coordinator.LastName</td>
+        <td>@o.Participants.Count</td>
+        @if(@ViewBag.User.UserId == o.UserId)
+        {
+          <td><a asp-route-occasionId="@o.OccasionId" asp-action="Destroy" asp-controller="Home">Delete</a></td>
+        }
+        else
+        {
+          @if(o.Participants.All(a=>a.UserId != @ViewBag.User.UserId))
+          {
+            <td><a asp-action="Join" asp-controller="Home" asp-route-occasionId="@o.OccasionId" asp-route-userId="@ViewBag.User.UserId" asp-route-status="add" >Join</a></td>
+          }
+          @if(o.Participants.Any(a=>a.UserId == @ViewBag.User.UserId))
+          {
+            <td><a asp-action="Join" asp-controller="Home" asp-route-occasionId="@o.OccasionId" asp-route-userId="@ViewBag.User.UserId" asp-route-status="remove" >Leave</a></td>
+          }
+        }
+      </tr>
+    }
+    }
+  </tbody>
+</table>
+
+<a asp-action="New" controller="Home" class="btn btn-success">Add New Activity</a>
